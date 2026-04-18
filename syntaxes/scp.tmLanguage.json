@@ -137,7 +137,7 @@
 		},
 		"ctrl-flow-statement": {
 			"name": "keyword.control.flow.scp",
-			"match": "(?i)\\b(begin|break|continue|doswitch|end|enddo|endfor|endwhile|for|forchars|forcharlayer|forcharmemorytype|forclients|forcont|forcontid|forconttype|forinstances|foritems|forobjs|forplayers|return|switch|while)\\b"
+			"match": "(?i)\\b(begin|break|continue|doswitch|dorand|end|enddo|endfor|endwhile|for|forchars|forcharlayer|forcharmemorytype|forclients|forcont|forcontid|forconttype|forinstances|foritems|forobjs|forplayers|return|switch|while)\\b"
 		},
 		"parser-modifier": {
 			"name": "keyword.control.parser.scp",
@@ -171,7 +171,7 @@
 		},
 		"trigger-builtin": {
 			"name": "entity.name.function.preprocessor.scp",
-			"match": "(?i)@\\b(ABORT|ADDMULTI|ADDREDCANDLE|ADDOBJ|ADDWHITECANDLE|AFTERCLICK|ATTACK|BUY|CALLGUARDS|CARVECORPSE|CHARATTACK|CHARCLICK|CHARCLIENTTOOLTIP|CHARCLIENTTOOLTIP_AFTERDEFAULT|CHARDCLICK|CHARSHOVE|CHARTRADEACCEPTED|CLICK|CLIENTTOOLTIP|CLIENTTOOLTIP_AFTERDEFAULT|CLIPERIODIC|COMBATADD|COMBATDELETE|COMBATEND|COMBATSTART|CONTEXTMENUREQUEST|CONTEXTMENUSELECT|CREATE|CREATELOOT|CRIMINAL|DAMAGE|DCLICK|DEATH|DEATHCORPSE|DELMULTI|DELOBJ|DESTROY|DISMOUNT|DROPON_CHAR|DROPON_GROUND|DROPON_ITEM|DROPON_SELF|DROPON_TRADE|DYE|EAT|EFFECT|EFFECTADD|EFFECTREMOVE|EFFECTTICK|ENTER|ENVIRONCHANGE|EQUIP|EQUIPTEST|EXIT|EXPCHANGE|EXPLEVELCHANGE|FAIL|FALLING|FAMECHANGE|FOLLOWERSUPDATE|GAIN|GETHIT|HIT|HITCHECK|HITIGNORE|HITMISS|HITPARRY|HITTRY|HOUSEDESIGNBEGIN|HOUSEDESIGNCOMMIT|HOUSEDESIGNCOMMITITEM|HOUSEDESIGNEXIT|ITEMAFTERCLICK|ITEMBUY|ITEMCARVECORPSE|ITEMCLICK|ITEMCLIENTTOOLTIP|ITEMCLIENTTOOLTIP_AFTERDEFAULT|ITEMCONTEXTMENUREQUEST|ITEMCONTEXTMENUSELECT|ITEMCREATE|ITEMDAMAGE|ITEMDCLICK|ITEMDESTROY|ITEMDROPON_CHAR|ITEMDROPON_GROUND|ITEMDROPON_ITEM|ITEMDROPON_SELF|ITEMDROPON_TRADE|ITEMEQUIP|ITEMEQUIPTEST|ITEMFIRE|ITEMMEMORYEQUIP|ITEMPICKUP_GROUND|ITEMPICKUP_PACK|ITEMPICKUP_SELF|ITEMPICKUP_STACK|ITEMSELL|ITEMSMELT|ITEMSPELL|ITEMSTEP|ITEMTARGON_CANCEL|ITEMTARGON_CHAR|ITEMTARGON_GROUND|ITEMTARGON_ITEM|ITEMTIMER|ITEMTOOLTIP|ITEMUNEQUIP|JAILED|KARMACHANGE|KILL|MEMORYEQUIP|LOAD|LOGIN|LOGOUT|MOUNT|MURDERDECAY|MURDERMARK|NOTOSEND|NPCACCEPTITEM|NPCACTCAST|NPCACTFIGHT|NPCACTFOLLOW|NPCACTION|NPCACTWANDER|NPCHEARGREETING|NPCHEARUNKNOWN|NPCLOOKATCHAR|NPCLOOKATITEM|NPCLOSTTELEPORT|NPCREFUSEITEM|NPCRESTOCK|NPCSEENEWPLAYER|NPCSEEWANTITEM|NPCSPECIALACTION|PARTYDISBAND|PARTYINVITE|PARTYLEAVE|PARTYREMOVE|PAYGOLD|PERSONALSPACE|PETDESERT|PICKUP_GROUND|PICKUP_PACK|PICKUP_SELF|PICKUP_STACK|PRESPAWN|PRESTART|PROFILE|RECEIVEITEM|REDEED|REGENSTAT|REGIONENTER|REGIONLEAVE|REGIONRESOURCEFOUND|REGIONRESOURCEGATHER|REGPERIODIC|RENAME|RESOURCEFOUND|RESOURCEGATHER|RESOURCETEST|RESURRECT|SEECRIME|SEEHIDDEN|SEESNOOP|SELECT|SELL|SENDPAPERDOLL|SHIP_MOVE|SHIP_STOP|SHIP_TURN|SKILLABORT|SKILLCHANGE|SKILLFAIL|SKILLGAIN|SKILLMAKEITEM|SKILLMENU|SKILLPRESTART|SKILLSELECT|SKILLSTART|SKILLSTROKE|SKILLSUCCESS|SKILLTARGETCANCEL|SKILLUSEQUICK|SKILLWAIT|SMELT|SPAWN|SPELLBOOK|SPELLCAST|SPELLEFFECT|SPELLEFFECTADD|SPELLEFFECTREMOVE|SPELLEFFECTTICK|SPELLFAIL|SPELLINTERRUPT|SPELLSELECT|SPELLSUCCESS|SPELLTARGETCANCEL|START|STATCHANGE|STEP|STEPSTEALTH|STROKE|SUCCESS|TARGETCANCEL|TARGON_CANCEL|TARGON_CHAR|TARGON_GROUND|TARGON_ITEM|TIMER|TOGGLEFLYING|TOOLTIP|TRADEACCEPTED|TRADECLOSE|TRADECREATE|UNEQUIP|USEQUICK|USERBUGREPORT|USERCHATBUTTON|USEREXTCMD|USEREXWALKLIMIT|USERGUILDBUTTON|USERKRTOOLBAR|USERMAILBAG|USERQUESTARROWCLICK|USERQUESTBUTTON|USERSKILLS|USERSPECIALMOVE|USERSTATS|USERULTIMASTOREBUTTON|USERVIRTUE|USERVIRTUEINVOKE|USERWARMODE|WAIT)\\b"
+			"match": "(?i)\\b\\b"
 		},
 		"triggers": {
 			"name": "entity.name.section.trigger.scp",
@@ -179,20 +179,40 @@
 				{
 						"name": "entity.name.section.trigger.builtin",
 						"patterns": [
-							{
-								"include": "#trigger-builtin"
-							}
 						]
 				}
 			]
 		},
 		"storage": {
-			"name": "storage.type.scp",
-			"match": "(?i)\\b(d?def0?|defmsg|d?tag0?|d?ctag0?|d?var0?|d?local|float|d?resdef0?|ARGO|ARGS|ARGV|ARG|ARGCHK|ARGCHKID|ARGTXT|d?ARGN[1-3])\\b"
+			"patterns": [
+				{
+				"match": "(?i)\\b(d?def0?|defmsg|d?tag0?|d?ctag0?|d?var0?|float|d?resdef0?|ARGN|ARGS|ARGV|ARG|ARGCHK|ARGCHKID|ARGTXT|d?ARGN[1-3])\\b",
+				"name": "storage.type.scp"
+				},
+				{
+				"match": "(?i)\\b((?:d?local|ref\\d+)\\.)\\s*([A-Za-z_][A-Za-z0-9_]*)",
+				"captures": {
+					"1": { "name": "storage.type.scp" },
+					"2": { "name": "variable.other.local.member.scp" }
+				}
+				}
+			]
 		},
 		"object": {
-			"name": "entity.name.class.scp",
-			"match": "(?i)\\b(account|act|argo|chardef|client|comp|cont|db|file|findcont|findid|findlayer|findtype|finduid|gmpage|guild|itemdef|lastnew|link|map|member|multi|new|obj|owner|party|ref[1-255]|region|sector|sectors|serv|skill|spell|src|targ|topobj|typedef|town)\\b"
+			"patterns": [
+				{
+				"match": "(?i)\\b(argo|account|act|argo|chardef|client|comp|cont|db|file|findcont|findid|findlayer|findtype|finduid|gmpage|guild|itemdef|lastnew|link|map|member|multi|new|obj|owner|party|ref(?!\\d)\\w+|region|sector|sectors|serv|skill|spell|src|targ|topobj|typedef|town|row|numrows|db\\w+|char_\\w+|\\w*(player|npc|boss|mobile)|boss\\w+)\\b",
+				"name": "entity.name.class.scp"
+				},
+				{
+				"match": "(?i)\\b(ref\\d+\\.)\\s*([A-Za-z_][A-Za-z0-9_]*)(?:\\.)?([A-Za-z_][A-Za-z0-9_]*)?",
+				"captures": {
+					"1": { "name": "entity.name.class.scp" },             
+					"2": { "name": "storage.type.scp" },
+					"3": { "name": "variable.other.property.level2.scp" }
+				}
+			}
+		]
 		},
 		"properties": {
 			"name": "support.variable.property.scp",
@@ -255,7 +275,7 @@
 		},
 		"function-intrinsic": {
 			"name": "entity.name.function.intrinsic.scp",
-			"match": "(?i)\\b(a|asc|b|d|eval|explode|f|floatval|hval|isempty|isnum|isnumber|isvalid|newitem|newnpc|qval|r|rand|s|strarg|strcmp|strcmpi|streat|streverse|strlen|strmatch|strmid|strpos|strregex|strrev|strsub|strtoupper|strtrim|w)\\b"
+			"match": "(?i)\\b(a|asc|b|d|eval|explode|f|floatval|hval|isempty|isnum|isnumber|isvalid|newitem|newnpc|qval|r|rand|s|strarg|strcmp|strcmpi|streat|streverse|strlen|strmatch|strmid|strpos|strregex|strrev|strsub|strtoupper|strtrim|w|init_\\w+)\\b"
 		},
 		"function-builtin": {
 			"name": "entity.name.function.builtin.scp",
@@ -332,6 +352,9 @@
 				},
 				{
 					"include": "#cobjbase-constants-damflags"
+				},
+				{
+					"include": "#cobjbase-triggers-recall"
 				}
 			]
 		},
@@ -343,33 +366,37 @@
 				}
 			]
 		},
+		"cobjbase-triggers-recall": {
+			"name": "constant.numeric.flag.damflags.cobjbase.scp",
+			"match": "(?i)@\\b(ABORT|ADDMULTI|ADDREDCANDLE|ADDOBJ|ADDWHITECANDLE|AFTERCLICK|ATTACK|BUY|CALLGUARDS|CARVECORPSE|CHARATTACK|CHARCLICK|CHARCLIENTTOOLTIP|CHARCLIENTTOOLTIP_AFTERDEFAULT|CHARDCLICK|CHARSHOVE|CHARTRADEACCEPTED|CLICK|CLIENTTOOLTIP|CLIENTTOOLTIP_AFTERDEFAULT|CLIPERIODIC|COMBATADD|COMBATDELETE|COMBATEND|COMBATSTART|CONTEXTMENUREQUEST|CONTEXTMENUSELECT|CREATE|CREATELOOT|CRIMINAL|DAMAGE|DCLICK|DEATH|DEATHCORPSE|DELMULTI|DELOBJ|DESTROY|DISMOUNT|DROPON_CHAR|DROPON_GROUND|DROPON_ITEM|DROPON_SELF|DROPON_TRADE|DYE|EAT|EFFECT|EFFECTADD|EFFECTREMOVE|EFFECTTICK|ENTER|ENVIRONCHANGE|EQUIP|EQUIPTEST|EXIT|EXPCHANGE|EXPLEVELCHANGE|FAIL|FALLING|FAMECHANGE|FOLLOWERSUPDATE|GAIN|GETHIT|HIT|HITCHECK|HITIGNORE|HITMISS|HITPARRY|HITTRY|HOUSEDESIGNBEGIN|HOUSEDESIGNCOMMIT|HOUSEDESIGNCOMMITITEM|HOUSEDESIGNEXIT|ITEMAFTERCLICK|ITEMBUY|ITEMCARVECORPSE|ITEMCLICK|ITEMCLIENTTOOLTIP|ITEMCLIENTTOOLTIP_AFTERDEFAULT|ITEMCONTEXTMENUREQUEST|ITEMCONTEXTMENUSELECT|ITEMCREATE|ITEMDAMAGE|ITEMDCLICK|ITEMDESTROY|ITEMDROPON_CHAR|ITEMDROPON_GROUND|ITEMDROPON_ITEM|ITEMDROPON_SELF|ITEMDROPON_TRADE|ITEMEQUIP|ITEMEQUIPTEST|ITEMFIRE|ITEMMEMORYEQUIP|ITEMPICKUP_GROUND|ITEMPICKUP_PACK|ITEMPICKUP_SELF|ITEMPICKUP_STACK|ITEMSELL|ITEMSMELT|ITEMSPELL|ITEMSTEP|ITEMTARGON_CANCEL|ITEMTARGON_CHAR|ITEMTARGON_GROUND|ITEMTARGON_ITEM|ITEMTIMER|ITEMTOOLTIP|ITEMUNEQUIP|JAILED|KARMACHANGE|KILL|MEMORYEQUIP|LOAD|LOGIN|LOGOUT|MOUNT|MURDERDECAY|MURDERMARK|NOTOSEND|NPCACCEPTITEM|NPCACTCAST|NPCACTFIGHT|NPCACTFOLLOW|NPCACTION|NPCACTWANDER|NPCHEARGREETING|NPCHEARUNKNOWN|NPCLOOKATCHAR|NPCLOOKATITEM|NPCLOSTTELEPORT|NPCREFUSEITEM|NPCRESTOCK|NPCSEENEWPLAYER|NPCSEEWANTITEM|NPCSPECIALACTION|PARTYDISBAND|PARTYINVITE|PARTYLEAVE|PARTYREMOVE|PAYGOLD|PERSONALSPACE|PETDESERT|PICKUP_GROUND|PICKUP_PACK|PICKUP_SELF|PICKUP_STACK|PRESPAWN|PRESTART|PROFILE|RECEIVEITEM|REDEED|REGENSTAT|REGIONENTER|REGIONLEAVE|REGIONRESOURCEFOUND|REGIONRESOURCEGATHER|REGPERIODIC|RENAME|RESOURCEFOUND|RESOURCEGATHER|RESOURCETEST|RESURRECT|SEECRIME|SEEHIDDEN|SEESNOOP|SELECT|SELL|SENDPAPERDOLL|SHIP_MOVE|SHIP_STOP|SHIP_TURN|SKILLABORT|SKILLCHANGE|SKILLFAIL|SKILLGAIN|SKILLMAKEITEM|SKILLMENU|SKILLPRESTART|SKILLSELECT|SKILLSTART|SKILLSTROKE|SKILLSUCCESS|SKILLTARGETCANCEL|SKILLUSEQUICK|SKILLWAIT|SMELT|SPAWN|SPELLBOOK|SPELLCAST|SPELLEFFECT|SPELLEFFECTADD|SPELLEFFECTREMOVE|SPELLEFFECTTICK|SPELLFAIL|SPELLINTERRUPT|SPELLSELECT|SPELLSUCCESS|SPELLTARGETCANCEL|START|STATCHANGE|STEP|STEPSTEALTH|STROKE|SUCCESS|TARGETCANCEL|TARGON_CANCEL|TARGON_CHAR|TARGON_GROUND|TARGON_ITEM|TIMER|TOGGLEFLYING|TOOLTIP|TRADEACCEPTED|TRADECLOSE|TRADECREATE|UNEQUIP|USEQUICK|USERBUGREPORT|USERCHATBUTTON|USEREXTCMD|USEREXWALKLIMIT|USERGUILDBUTTON|USERKRTOOLBAR|USERMAILBAG|USERQUESTARROWCLICK|USERQUESTBUTTON|USERSKILLS|USERSPECIALMOVE|USERSTATS|USERULTIMASTOREBUTTON|USERVIRTUE|USERVIRTUEINVOKE|USERWARMODE|WAIT|@\\w+)\\b"
+		},
 		"cobjbase-constants-damflags": {
 			"name": "constant.numeric.flag.damflags.cobjbase.scp",
-			"match": "(?i)\\b(dam_god|dam_physical|dam_magic|dam_poison|dam_fire|dam_energy|dam_general|dam_acidic|dam_cold|dam_slash|dam_pierce|dam_nodisturb|dam_noreveal|dam_nounparalyze|dam_fixed|dam_breath|dam_thrown|dam_reactive)\\b"
+			"match": "(?i)\\b(dam_\\w+|i_\\w+|t_\\w+|e_\\w+|ei_\\w+|r_\\w+|a_\\w+|c_\\w+|d_\\w+|_\\w+|@\\w+|layer_\\w+|brain_\\w+|statf_\\w+|region_\\w+|attr_\\w+|passivebufficon_\\w+|debufficon_\\w+|bufficon_\\w+|snd_\\w+|memory_\\w+|can_\\w+|skf_\\w+|noto_\\w+|house_\\w+|res_\\w+|colors_\\w+|faction_\\w+)\\b"
 		},
 		"cchar-constants-canflags": {
 			"name": "constant.numeric.flags.canflags.cchar.scp",
-			"match": "(?i)\\b(mt_male|mt_ghost|mt_swim|mt_walk|mt_passwalls|mt_fly|mt_fire_immune|mt_noindoors|mt_hover|mt_equip|mt_usehands|mt_mount|mt_female|mt_nonhum|mt_run|mt_nodclicklos|mt_nodclickdist|mt_nonmover|mt_noblockheight|mt_statue|mt_nonselectable)\\b"
+			"match": "(?i)\\b(mt_\\w+)\\b"
 		},
 		"cobjbase-constants-attr": {
 			"name": "constant.numeric.flag.attr.cobjbase.scp",
-			"match": "(?i)\\b(attr_identified|attr_decay|attr_newbie|attr_move_always|attr_move_never|attr_magic|attr_owned|attr_invis|attr_cursed|attr_cursed2|attr_blessed|attr_blessed2|attr_forsale|attr_stolen|attr_can_decay|attr_static|attr_exceptional|attr_enchanted|attr_imbued|attr_questitem|attr_insured|attr_nodrop|attr_notrade|attr_artifact|attr_lockeddown|attr_secure|attr_reforged|attr_opened|attr_shardbound|attr_accountbound|attr_characterbound|attr_canuse_paralyzed)\\b"
+			"match": "(?i)\\b(attr_\\w+)\\b"
 		},
 		"cregion-constants-regionflags": {
 			"name": "constant.numeric.flag.regionflags.cregion.scp",
-			"match": "(?i)\\b(region_antimagic_all|region_antimagic_recall_in|region_antimagic_recall_out|region_antimagic_gate|region_antimagic_gate|region_antimagic_teleport|region_antimagic_damage|region_flag_ship|region_flag_nobuilding|region_flag_announce|region_flag_insta_logout|region_flag_underground|region_flag_nodecay|region_flag_safe|region_flag_guarded|region_no_pvp|region_flag_arena|region_flag_nomining|region_flag_walk_noblockheight|region_flag_inherit_parent_events|region_flag_inherit_parent_flags|region_flag_inherit_parent_tags)\\b"
+			"match": "(?i)\\b(region_\\w+)\\b"
 		},
 		"cobjbase-constants-spellflags": {
 			"name": "constant.numeric.flag.spellflag.cobjbase.scp",
-			"match": "(?i)\\b(spellflag_dir_anim|spellflag_targ_item|spellflag_targ_char|spellflag_targ_obj|spellflag_targ_xyz|spellflag_harm|spellflag_fx_bolt|spellflag_fx_targ|spellflag_field|spellflag_summon|spellflag_good|spellflag_resist|spellflag_targ_noself|spellflag_freezeoncast|spellflag_disabled|spellflag_scripted|spellflag_playeronly|spellflag_nounparalyze|spellflag_no_castanim|spellflag_targ_no_player|spellflag_targ_no_npc|spellflag_noprecast|spellflag_nofreezeoncast|spellflag_area|spellflag_poly|spellflag_targ_dead|spellflag_damage|spellflag_bless|spellflag_curse|spellflag_heal|spellflag_tick)\\b"
+			"match": "(?i)\\b(spellflag_\\w+)\\b"
 		},
 		"cobjbase-functions": {
 			"name": "entity.name.function.cobjbase.scp",
-			"match": "(?i)\\b(ADDCLILOC|BASEPROPLIST|BASETAGLIST|CLICK|CLILOCLIST|DAMAGE|DCLICK|DIALOG|DIALOGCLOSE|EDIT|EFFECT|EFFECTLOCATION|EMOTE|FIX|FLIP|GOAWAKE|GOSLEEP|INFO|INPDLG|MENU|MESSAGE|MESSAGEUA|MOVE|MOVENEAR|MOVETO|MSG|NUDGEDOWN|NUDGEUP|P|PROMPTCONSOLE|PROMPTCONSOLEU|PROPLIST|REMOVE|REMOVECLILOC|REMOVEFROMVIEW|REPLACECLILOC|RESENDTOOLTIP|SAY|SAYU|SAYUA|SDIALOG|SPELLEFFECT|TAGLIST|TARGET|TIMERF|TIMERFMS|UID|UPDATE|UPDATEX|USEITEM|Z)\\b"
+			"match": "(?i)\\b(ADDCLILOC|BASEPROPLIST|BASETAGLIST|CLICK|CLILOCLIST|DAMAGE|DCLICK|DIALOG|DIALOGCLOSE|EDIT|EFFECT|EFFECTLOCATION|EMOTE|FIX|FLIP|GOAWAKE|GOSLEEP|INFO|INPDLG|MENU|MESSAGE|MESSAGEUA|MOVE|MOVENEAR|MOVETO|MSG|NUDGEDOWN|NUDGEUP|P|PROMPTCONSOLE|PROMPTCONSOLEU|PROPLIST|REMOVE|REMOVECLILOC|REMOVEFROMVIEW|REPLACECLILOC|RESENDTOOLTIP|SAY|SAYU|SAYUA|SDIALOG|SPELLEFFECT|TAGLIST|TARGET|TIMERF|TIMERFMS|UPDATE|UPDATEX|USEITEM|Z)\\b"
 		},
 		"cobjbase-props": {
 			"name": "support.variable.property.cobjbase.scp",
-			"match": "(?i)\\b(ABILITYPRIMARY|ABILITYSECONDARY|ARMOR|CAN|CANMASK|CANSEE|CANSEELOS|CANSEELOSFLAG|CLILOC|CLILOCCOUNT|COLOR|COMPLEXITY|CTAGCOUNT|DAM|DEFNAME|DIALOGLIST|DISTANCE|EVENTS|FACING|HASCOMPONENTPROPS|ISARMOR|ISCHAR|ISCONT|ISDIALOGOPEN|ISEVENT|ISITEM|ISNEARTYPE|ISNEARTYPETOP|ISPLAYER|ISSLEEPING|ISTEVENT|ISTIMERF|ISWEAPON|MAP|MODAC|MODAR|MODMAXWEIGHT|NAME|NAMELOC|ONAME|P|PROPSAT|PROPSCOUNT|RECIPEALCHEMY|RECIPEBLACKSMITH|RECIPEBOWCRAFT|RECIPECARPENTRY|RECIPECARTOPGRAHY|RECIPECOOKING|RECIPEGLASSBLOWING|RECIPEINSCRIPTION|RECIPEMASONRY|RECIPETAILORING|RECIPETINKERING|RESDISPDNHUE|SERIAL|SEXTANTP|SLAYER|SLAYERLESSER|SLAYERMISC|SLAYERSUPER|SOUND|SPAWNITEM|SPEED|TAG|TAG0|TAGAT|TAGCOUNT|TEVENTS|TEXTF|TIMER|TIMERD|TIMERMS|TIMESTAMP|TOPOBJ|UID|VERSION|WEIGHT|Z)\\b"
+			"match": "(?i)\\b(ABILITYPRIMARY|ABILITYSECONDARY|ARMOR|CAN|CANMASK|CANSEE|CANSEELOS|CANSEELOSFLAG|CLILOC|CLILOCCOUNT|COLOR|COMPLEXITY|CTAGCOUNT|DAM|DEFNAME|DIALOGLIST|DISTANCE|EVENTS|FACING|HASCOMPONENTPROPS|ISARMOR|ISCHAR|ISCONT|ISDIALOGOPEN|ISEVENT|ISITEM|ISNEARTYPE|ISNEARTYPETOP|ISPLAYER|ISSLEEPING|ISTEVENT|ISTIMERF|ISWEAPON|MAP|MODAC|MODAR|MODMAXWEIGHT|NAME|NAMELOC|ONAME|P|PROPSAT|PROPSCOUNT|RECIPEALCHEMY|RECIPEBLACKSMITH|RECIPEBOWCRAFT|RECIPECARPENTRY|RECIPECARTOPGRAHY|RECIPECOOKING|RECIPEGLASSBLOWING|RECIPEINSCRIPTION|RECIPEMASONRY|RECIPETAILORING|RECIPETINKERING|RESDISPDNHUE|SERIAL|SEXTANTP|SLAYER|SLAYERLESSER|SLAYERMISC|SLAYERSUPER|SOUND|SPAWNITEM|SPEED|TAG|TAG0|TAGAT|TAGCOUNT|TEVENTS|TEXTF|TIMER|TIMERD|TIMERMS|TIMESTAMP|TOPOBJ|VERSION|WEIGHT|Z)\\b"
 		},
 		"ccharbase-props": {
 			"name": "support.variable.property.ccharbase.scp",
@@ -377,19 +404,19 @@
 		},
 		"cchar-functions": {
 			"name": "entity.name.function.cchar.scp",
-			"match": "(?i)\\b(AFK|ALLSKILLS|ANIM|ATTACK|BANK|BARK|BOUNCE|BOW|CONSUME|CONTROL|CRIMINAL|CURE|DESTROY|DISCONNECT|DROP|DUPE|EQUIP|EQUIPARMOR|EQUIPHALO|EQUIPWEAPON|FACE|FIXWEIGHT|FORGIVE|GO|GOCHAR|GOCHARID|GOCLI|GOITEMID|GONAME|GOSOCK|GOTYPE|GOUID|HEAR|HUNGRY|INVIS|INVUL|JAIL|KILL|MAKEITEM|MOUNT|NEWBIESKILL|NEWGOLD|NEWLOOT|NOTOCLEAR|NOTOUPDATE|OWNER|PACK|POISON|POLY|PRIVSET|REMOVE|RESURRECT|REVEAL|SALUTE|SKILL|SKILLGAIN|SLEEP|SMSG|SMSGL|SMSGLEX|SMSGU|SUICIDE|SUMMONCAGE|SUMMONTO|SYSMESSAGE|SYSMESSAGEF|SYSMESSAGELOC|SYSMESSAGELOCEX|SYSMESSAGEUA|TARGETCLOSE|UNDERWEAR|UNEQUIP|WAKE|WHERE)\\b"
+			"match": "(?i)\\b(AFK|ALLSKILLS|ANIM|ATTACK|BANK|BARK|BOUNCE|BOW|CONSUME|CONTROL|CRIMINAL|CURE|DESTROY|DISCONNECT|DROP|DUPE|EQUIP|EQUIPARMOR|EQUIPHALO|EQUIPWEAPON|FACE|FIXWEIGHT|FORGIVE|GO|GOCHAR|GOCHARID|GOCLI|GOITEMID|GONAME|GOSOCK|GOTYPE|GOUID|HEAR|HUNGRY|INVIS|INVUL|JAIL|KILL|MAKEITEM|MOUNT|NEWBIESKILL|NEWGOLD|NEWLOOT|NOTOCLEAR|NOTOUPDATE|OWNER|PACK|POISON|POLY|PRIVSET|REMOVE|RESURRECT|REVEAL|SALUTE|SKILL|SKILLGAIN|SLEEP|SMSG|SMSGL|SMSGLEX|SMSGU|SUICIDE|SUMMONCAGE|SUMMONTO|SYSMESSAGE|SYSMESSAGEF|SYSMESSAGELOC|SYSMESSAGELOCEX|SYSMESSAGEUA|TARGETCLOSE|UNDERWEAR|UNEQUIP|WAKE|WHERE|SYSMEX|SENDPAGE|SENDGUMP|SENDPAGEDB|SENDGUMPDB|get\\w+|add\\w+|print\\w+|result\\w+|calculate\\w+|convert\\w+|validate\\w+|generate\\w+|authenticate\\w+|send\\w+|spawn\\w+|trade\\w+|attack\\w+|complete\\w+|use\\w+|create\\w+|craft\\w+|has\\w+|increase\\w+|decrease\\w+|activate\\w+|deactivate\\w+|delete\\w+|remove\\w+|check\\w+|f_\\w+|update\\w+|save\\w+|open\\w+|change\\w+|cast\\w+|set_\\w+|open\\w+|close\\w+)\\b"
 		},
 		"cchar-props-skills": {
 			"name": "support.variable.skill.cchar.scp",
-			"match": "(?i)\\b(Alchemy|Archery|Anatomy|AnimalLore|ArmsLore|Begging|Blacksmithing|Bowcraft|Bushido|Camping|Carpentry|Cartography|Chivalry|Cooking|DetectingHidden|Enticement|EvaluatingIntel|Fencing|Fishing|Focus|Forensics|Healing|Herding|Hiding|Imbuing|Inscription|ItemId|LockPicking|Lumberjacking|Macefighting|Magery|MagicResistance|Musicianship|Meditation|Mining|Mysticism|Necromancy|Ninjitsu|Parrying|Peacemaking|Poisoning|Provocation|RemoveTrap|Snooping|Spellweaving|SpiritSpeak|Stealing|Stealth|Swordsmanship|Tactics|Tailoring|Taming|TasteId|Throwing|Tinkering|Tracking|Veterinary|Wrestling)\\b"
+			"match": "(?i)\\b(Alchemy|Archery|Anatomy|AnimalLore|ArmsLore|Begging|Blacksmithing|Bowcraft|Bushido|Camping|Carpentry|Cartography|Chivalry|Cooking|DetectingHidden|Enticement|EvaluatingIntel|Fencing|Fishing|Focus|Forensics|Healing|Herding|Hiding|Imbuing|Inscription|ItemId|LockPicking|Lumberjacking|Macefighting|Magery|MagicResistance|Musicianship|Meditation|Mining|Mysticism|Necromancy|Ninjitsu|Parrying|Peacemaking|Poisoning|Provocation|RemoveTrap|Snooping|Spellweaving|SpiritSpeak|Stealing|Stealth|Swordsmanship|Tactics|Tailoring|Taming|TasteId|Throwing|Tinkering|Tracking|Veterinary|Wrestling|Astronomy|MonstersLore|SpiritsLore|Farming|Treasuring|InstrumentsLore|AnimalHandling|Intuition|Trapping)\\b"
 		},
 		"cchar-constants-statflags": {
 			"name": "constant.numeric.flag.statflag.cchar.scp",
-			"match": "(?i)\\b(statf_invul|statf_dead|statf_freeze|statf_invisible|statf_sleeping|statf_war|statf_reactive|statf_poisoned|statf_nightsight|statf_reflection|statf_polymorph|statf_incognito|statf_spiritspeak|statf_insubstantial|statf_emoteaction|statf_commcrystal|statf_hasshield|statf_archercanmove|statf_stone|statf_hovering|statf_fly|statf_hallucinating|statf_hidden|statf_indoors|statf_criminal|statf_conjured|statf_pet|statf_spawned|statf_saveparity|statf_ridden|statf_onhorse)\\b"
+			"match": "(?i)\\b(statf_\\w+)\\b"
 		},
 		"cchar-props": {
 			"name": "support.variable.property.cchar.scp",
-			"match": "(?i)\\b(AC|ACCOUNT|ACT|ACTARG[1-3]|ACTDIFF|ACTION(?:EFFECT)?|ACTP|ACTPRV|AGE|AR|ATTACKER|AVERSIONS|BANKBALANCE|BLOODCOLOR|BODY|BREATH|CAN(?:CAST|MAKE(?:SKILL)?)|CANMOVE|CREATE|CURFOLLOWER|DAMADJUSTED|DESIRES|DEX|DIR|DISMOUNT|DISPIDDEC|EMOTE(?:ACT|COLOROVERRIDE)|EXP|FAME|FIGHTRANGE|FLAGS|FONT|FOOD|GOLD|GUILDABBREV|HEIGHT|HITPOINTS|HITS|HOME|ID|INT|ISGM|ISINPARTY|ISMYPET|ISONLINE|ISSTUCK|ISVENDOR|ISVERTICALSPACE|KARMA|LEVEL|MANA|MAXFOLLOWER|MAXFOOD|MAXHITS|MAXMANA|MAXSTAM|MAXWEIGHT|MEMORY|MOD(?:DEX|INT|MAXHITS|MAXMANA|MAXSTAM|STR)|MOUNT|MOVE|NAME|NOTO(?:GETFLAG|SAVE)|NPC|O(?:BODY|DEX|FAME|FOOD|INT|KARMA|MAXHITS|MAXMANA|MAXSTAM|SKIN|STR)|P|RANGE(?:[HL])?|REGEN(?:FOOD[D]?|HITS[D]?|MANA[D]?|STAM[D]?|VALFOOD|VALHITS|VALMANA|VALSTAM)|SEX|SKILL(?:ADJUSTED|BEST|CHECK|TEST|TOTAL|USEQUICK)|SPEECHCOLOROVERRIDE|SPELLTIMEOUT|STAM(?:INA)?|STATPERCENT|STEPSTEALTH|STONE|STR|SWING|TITHING|TITLE|TOWNABBREV|VIRTUALGOLD|VISUALRANGE)\\b"
+			"match": "(?i)\\b(AC|ACCOUNT|ACT|ACTARG[1-3]|ACTDIFF|ACTION(?:EFFECT)?|ACTP|ACTPRV|AGE|AR|ATTACKER|AVERSIONS|BANKBALANCE|BLOODCOLOR|BODY|BREATH|CAN(?:CAST|MAKE(?:SKILL)?)|CANMOVE|CREATE|CURFOLLOWER|DAMADJUSTED|DESIRES|DEX|DIR|DISMOUNT|DISPIDDEC|EMOTE(?:ACT|COLOROVERRIDE)|EXP|FAME|FIGHTRANGE|FLAGS|FONT|FOOD|GOLD|GUILDABBREV|HEIGHT|HITPOINTS|HITS|HOME|ID|INT|ISGM|ISINPARTY|ISMYPET|ISONLINE|ISSTUCK|ISVENDOR|ISVERTICALSPACE|KARMA|LEVEL|MANA|MAXFOLLOWER|MAXFOOD|MAXHITS|MAXMANA|MAXSTAM|MAXWEIGHT|MEMORY|MOD(?:DEX|INT|MAXHITS|MAXMANA|MAXSTAM|STR)|MOUNT|MOVE|NAME|NOTO(?:GETFLAG|SAVE)|NPC|O(?:BODY|DEX|FAME|FOOD|INT|KARMA|MAXHITS|MAXMANA|MAXSTAM|SKIN|STR)|P|RANGE(?:[HL])?|REGEN(?:FOOD[D]?|HITS[D]?|MANA[D]?|STAM[D]?|VALFOOD|VALHITS|VALMANA|VALSTAM)|SEX|SKILL(?:ADJUSTED|BEST|CHECK|TEST|TOTAL|USEQUICK)|SPEECHCOLOROVERRIDE|SPELLTIMEOUT|STAM(?:INA)?|STATPERCENT|STEPSTEALTH|STONE|STR|SWING|TITHING|TITLE|TOWNABBREV|VIRTUALGOLD|VISUALRANGE|UID|BASEID|FACTION|is\\w+|cur\\w+|max\\w+|min\\w+|tot\\w+|input\\w+|index\\w+|database\\w+|string\\w+|page\\w+|result\\w+|error\\w+|mobile\\w+|point\\w+|skill\\w+|player\\w+|int\\w+|float\\w+|string\\w+|diff\\w+|new\\w+|old\\w+|res\\w+)\\b"
 		},
 		"props-cc-char": {
 			"name": "support.variable.property.cc-char.scp",
