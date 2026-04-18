@@ -49,7 +49,7 @@ function parseFunctionDefinitions(content) {
 }
 
 async function collectFunctionsInFolder(folderUri) {
-  const pattern = new vscode.RelativePattern(folderUri, '*.scp');
+  const pattern = new vscode.RelativePattern(folderUri, '**/*.scp');
   const files = await vscode.workspace.findFiles(pattern);
   const functions = [];
 
@@ -98,12 +98,22 @@ function activate(context) {
     { language: 'scp' },
     {
       async provideCompletionItems(document) {
-        const currentDirectory = path.dirname(document.uri.fsPath);
-        if (!currentDirectory) {
+        const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
+        if (!workspaceFolder) {
           return [];
         }
 
-        const functions = await collectFunctionsInFolder(vscode.Uri.file(currentDirectory));
+        const scriptsUri = vscode.Uri.joinPath(workspaceFolder.uri, 'scripts');
+        let scanUri = workspaceFolder.uri;
+
+        try {
+          await vscode.workspace.fs.stat(scriptsUri);
+          scanUri = scriptsUri;
+        } catch {
+          // Fallback to workspace root if /scripts doesn't exist.
+        }
+
+        const functions = await collectFunctionsInFolder(scanUri);
         return createCompletionItems(functions);
       }
     },
