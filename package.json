@@ -36,5 +36,9 @@
         "path": "./syntaxes/scp.tmLanguage.json"
       }
     ]
-  }
+  },
+  "main": "./extension.js",
+  "activationEvents": [
+    "onLanguage:scp"
+  ]
 }
