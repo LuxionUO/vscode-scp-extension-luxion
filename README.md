@@ -20,4 +20,17 @@ Then it suggests:
 
 The inserted text is only the function name (`getAurea`), while the suggestion label helps you remember the expected locals.
 
-Completions are also triggered while typing object-style names like `src.setbuff`.
+Completions are triggered while typing (letters, numbers, `_`, `[` and `.`), including object-style names like `src.setbuff`.
+
+## New: section autocomplete (ITEM/AREADEF/REGIONTYPE/TYPEDEF/DIALOG)
+
+The extension now also scans section headers and suggests entries like:
+
+- `[item] i_bandage`
+- `[areadef] a_town`
+- `[regiontype] r_default`
+- `[type] t_custom`
+- `[dialog] d_vendor`
+- `[function] f_example (arg1, arg2)`
+
+The inserted text remains the symbol name only, so selecting `[item] i_bandage` inserts `i_bandage`.
