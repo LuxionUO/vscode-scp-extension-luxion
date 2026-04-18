@@ -5,7 +5,7 @@
 
 ## New: FUNCTION signature autocomplete
 
-When you're editing an `.scp` file, the extension scans `.scp` files recursively from the workspace `scripts/` folder (or from workspace root if `scripts/` doesn't exist) and detects blocks like:
+When you're editing an `.scp` file, the extension scans all `.scp` files recursively in the entire opened workspace/project and detects blocks like:
 
 ```scp
 [FUNCTION getAurea]

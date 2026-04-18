@@ -48,9 +48,8 @@ function parseFunctionDefinitions(content) {
   return definitions;
 }
 
-async function collectFunctionsInFolder(folderUri) {
-  const pattern = new vscode.RelativePattern(folderUri, '**/*.scp');
-  const files = await vscode.workspace.findFiles(pattern);
+async function collectFunctionsInWorkspace() {
+  const files = await vscode.workspace.findFiles('**/*.scp', '**/{.git,node_modules}/**');
   const functions = [];
 
   for (const file of files) {
@@ -98,22 +97,11 @@ function activate(context) {
     { language: 'scp' },
     {
       async provideCompletionItems(document) {
-        const workspaceFolder = vscode.workspace.getWorkspaceFolder(document.uri);
-        if (!workspaceFolder) {
+        if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
           return [];
         }
 
-        const scriptsUri = vscode.Uri.joinPath(workspaceFolder.uri, 'scripts');
-        let scanUri = workspaceFolder.uri;
-
-        try {
-          await vscode.workspace.fs.stat(scriptsUri);
-          scanUri = scriptsUri;
-        } catch {
-          // Fallback to workspace root if /scripts doesn't exist.
-        }
-
-        const functions = await collectFunctionsInFolder(scanUri);
+        const functions = await collectFunctionsInWorkspace();
         return createCompletionItems(functions);
       }
     },
