@@ -6,6 +6,7 @@ const SUPPORTED_SECTION_TYPES = new Map([
   ['function', 'FUNCTION'],
   ['item', 'ITEM'],
   ['itemdef', 'ITEM'],
+  ['defname', 'DEFNAME'],
   ['areadef', 'AREADEF'],
   ['regiontype', 'REGIONTYPE'],
   ['type', 'TYPEDEF'],
@@ -208,6 +209,8 @@ function getCompletionKind(type) {
       return vscode.CompletionItemKind.Class;
     case 'DIALOG':
       return vscode.CompletionItemKind.Interface;
+    case 'DEFNAME':
+      return vscode.CompletionItemKind.Constant;
     default:
       return vscode.CompletionItemKind.Text;
   }
@@ -224,7 +227,13 @@ function createCompletionItems(symbols) {
 
     const item = new vscode.CompletionItem(label, getCompletionKind(symbol.type));
     item.insertText = symbol.name;
-    item.filterText = `${symbol.type} ${symbol.name} ${shortName}`;
+    item.filterText = [
+      symbol.type,
+      displayType,
+      symbol.name,
+      shortName,
+      symbol.name.replace(/_/g, ' ')
+    ].join(' ');
     item.sortText = `0_${symbol.type}_${symbol.name}`;
     item.detail = `From ${symbol.file}`;
     item.documentation = new vscode.MarkdownString(
