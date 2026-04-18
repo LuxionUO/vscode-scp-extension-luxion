@@ -2,48 +2,73 @@ const vscode = require('vscode');
 const path = require('path');
 const fs = require('fs/promises');
 
-function parseFunctionDefinitions(content) {
+const SUPPORTED_SECTION_TYPES = new Map([
+  ['function', 'FUNCTION'],
+  ['itemdef', 'ITEM'],
+  ['areadef', 'AREADEF'],
+  ['regiontype', 'REGIONTYPE'],
+  ['typedef', 'TYPEDEF'],
+  ['dialog', 'DIALOG']
+]);
+
+function parseScriptDefinitions(content) {
   const lines = content.split(/\r?\n/);
   const definitions = [];
 
-  let current = null;
+  let currentFunction = null;
 
   for (const line of lines) {
-    const functionMatch = line.match(/^\s*\[FUNCTION\s+([^\]]+)\]/i);
+    const sectionMatch = line.match(/^\s*\[([A-Za-z0-9_]+)\s*([^\]]*)\]/);
 
-    if (functionMatch) {
-      if (current) {
-        definitions.push(current);
+    if (sectionMatch) {
+      if (currentFunction) {
+        definitions.push(currentFunction);
+        currentFunction = null;
       }
 
-      current = {
-        name: functionMatch[1].trim(),
-        locals: []
-      };
+      const sectionType = sectionMatch[1].toLowerCase();
+      const symbolType = SUPPORTED_SECTION_TYPES.get(sectionType);
+      const sectionValue = sectionMatch[2].trim();
+
+      if (!symbolType || !sectionValue) {
+        continue;
+      }
+
+      const name = sectionValue.split(/\s+/)[0];
+
+      if (!name) {
+        continue;
+      }
+
+      if (symbolType === 'FUNCTION') {
+        currentFunction = {
+          type: symbolType,
+          name,
+          locals: []
+        };
+      } else {
+        definitions.push({
+          type: symbolType,
+          name
+        });
+      }
 
       continue;
     }
 
-    if (!current) {
-      continue;
-    }
-
-    // Another section starts; FUNCTION body ended.
-    if (/^\s*\[[^\]]+\]/.test(line)) {
-      definitions.push(current);
-      current = null;
+    if (!currentFunction) {
       continue;
     }
 
     const localMatch = line.match(/^\s*local\.([A-Za-z0-9_]+)/);
 
     if (localMatch) {
-      current.locals.push(localMatch[1]);
+      currentFunction.locals.push(localMatch[1]);
     }
   }
 
-  if (current) {
-    definitions.push(current);
+  if (currentFunction) {
+    definitions.push(currentFunction);
   }
 
   return definitions;
@@ -113,7 +138,7 @@ async function collectScpFilesFromDirectory(rootDir) {
   return files;
 }
 
-async function collectFunctions(document) {
+async function collectDefinitions(document) {
   const files = [];
   const seenPaths = new Set();
 
@@ -138,15 +163,24 @@ async function collectFunctions(document) {
     }
   }
 
-  const functions = [];
+  const symbols = [];
+  const seenSymbols = new Set();
 
   for (const file of files) {
     try {
       const content = (await fs.readFile(file)).toString();
-      const definitions = parseFunctionDefinitions(content);
+      const definitions = parseScriptDefinitions(content);
 
       for (const definition of definitions) {
-        functions.push({
+        const dedupeKey = `${definition.type}:${definition.name}`;
+
+        if (seenSymbols.has(dedupeKey)) {
+          continue;
+        }
+
+        seenSymbols.add(dedupeKey);
+
+        symbols.push({
           ...definition,
           file: path.basename(file)
         });
@@ -156,24 +190,46 @@ async function collectFunctions(document) {
     }
   }
 
-  return functions;
+  return symbols;
 }
 
-function createCompletionItems(functions) {
-  return functions.map((fn) => {
-    const params = fn.locals.join(', ');
-    const signature = params ? `${fn.name} (${params})` : `${fn.name} ()`;
-    const shortName = fn.name.split('.').pop() || fn.name;
+function getCompletionKind(type) {
+  switch (type) {
+    case 'FUNCTION':
+      return vscode.CompletionItemKind.Function;
+    case 'ITEM':
+      return vscode.CompletionItemKind.Field;
+    case 'AREADEF':
+    case 'REGIONTYPE':
+      return vscode.CompletionItemKind.Module;
+    case 'TYPEDEF':
+      return vscode.CompletionItemKind.Class;
+    case 'DIALOG':
+      return vscode.CompletionItemKind.Interface;
+    default:
+      return vscode.CompletionItemKind.Text;
+  }
+}
 
-    const item = new vscode.CompletionItem(signature, vscode.CompletionItemKind.Function);
-    item.insertText = fn.name;
-    item.filterText = `${fn.name} ${shortName}`;
-    item.sortText = `0_${fn.name}`;
-    item.detail = `From ${fn.file}`;
+function createCompletionItems(symbols) {
+  return symbols.map((symbol) => {
+    const params = symbol.type === 'FUNCTION' ? symbol.locals.join(', ') : '';
+    const label = symbol.type === 'FUNCTION'
+      ? `${symbol.type}: ${symbol.name} (${params || ''})`
+      : `${symbol.type}: ${symbol.name}`;
+    const shortName = symbol.name.split('.').pop() || symbol.name;
+
+    const item = new vscode.CompletionItem(label, getCompletionKind(symbol.type));
+    item.insertText = symbol.name;
+    item.filterText = `${symbol.type} ${symbol.name} ${shortName}`;
+    item.sortText = `0_${symbol.type}_${symbol.name}`;
+    item.detail = `From ${symbol.file}`;
     item.documentation = new vscode.MarkdownString(
-      params
-        ? `\`${fn.name}(${params})\`\n\nLocals found: ${fn.locals.map((local) => `\`${local}\``).join(', ')}`
-        : `\`${fn.name}()\``
+      symbol.type === 'FUNCTION'
+        ? (params
+            ? `\`${symbol.name}(${params})\`\n\nLocals found: ${symbol.locals.map((local) => `\`${local}\``).join(', ')}`
+            : `\`${symbol.name}()\``)
+        : `\`${symbol.type}: ${symbol.name}\``
     );
 
     return item;
@@ -185,8 +241,8 @@ function activate(context) {
     { language: 'scp' },
     {
       async provideCompletionItems(document) {
-        const functions = await collectFunctions(document);
-        return createCompletionItems(functions);
+        const definitions = await collectDefinitions(document);
+        return createCompletionItems(definitions);
       }
     },
     '.'
