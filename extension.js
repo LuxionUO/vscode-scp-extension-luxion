@@ -239,12 +239,15 @@ function createCompletionItems(symbols) {
   return symbols.map((symbol) => {
     const params = symbol.type === 'FUNCTION' ? symbol.locals.join(', ') : '';
     const displayType = symbol.type === 'TYPEDEF' ? 'type' : symbol.type.toLowerCase();
-    const label = symbol.type === 'FUNCTION'
-      ? `[${displayType}] ${symbol.name} (${params || ''})`
-      : `[${displayType}] ${symbol.name}`;
     const shortName = symbol.name.split('.').pop() || symbol.name;
 
-    const item = new vscode.CompletionItem(label, getCompletionKind(symbol.type));
+    const item = new vscode.CompletionItem(
+      {
+        label: symbol.name,
+        detail: ` ${displayType}`
+      },
+      getCompletionKind(symbol.type)
+    );
     item.insertText = symbol.name;
     item.filterText = [
       symbol.name,
@@ -265,6 +268,18 @@ function createCompletionItems(symbols) {
 
     return item;
   });
+}
+
+function shouldSuppressCompletionAtPosition(document, position) {
+  const linePrefix = document.lineAt(position.line).text.slice(0, position.character);
+  const tokenMatch = linePrefix.match(/([A-Za-z_][A-Za-z0-9_]*)$/);
+
+  if (!tokenMatch) {
+    return true;
+  }
+
+  const typedToken = tokenMatch[1].toLowerCase();
+  return !typedToken.startsWith('i_');
 }
 
 function createSignatureHelp(functionSymbol, activeParameter) {
@@ -325,7 +340,11 @@ function activate(context) {
   const completionProvider = vscode.languages.registerCompletionItemProvider(
     { language: 'scp' },
     {
-      async provideCompletionItems(document) {
+      async provideCompletionItems(document, position) {
+        if (shouldSuppressCompletionAtPosition(document, position)) {
+          return [];
+        }
+
         const definitions = await collectDefinitions(document);
         return createCompletionItems(definitions);
       }
