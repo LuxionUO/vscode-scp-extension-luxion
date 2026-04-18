@@ -272,8 +272,14 @@ function createCompletionItems(symbols) {
 
 function shouldSuppressCompletionAtPosition(document, position) {
   const linePrefix = document.lineAt(position.line).text.slice(0, position.character);
-  const isTypingLocalMember = /local\.[A-Za-z0-9_]*$/i.test(linePrefix);
-  return isTypingLocalMember;
+  const tokenMatch = linePrefix.match(/([A-Za-z_][A-Za-z0-9_]*)$/);
+
+  if (!tokenMatch) {
+    return true;
+  }
+
+  const typedToken = tokenMatch[1].toLowerCase();
+  return !typedToken.startsWith('i_');
 }
 
 function createSignatureHelp(functionSymbol, activeParameter) {
