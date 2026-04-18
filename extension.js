@@ -62,7 +62,7 @@ function parseScriptDefinitions(content) {
       continue;
     }
 
-    const localMatch = line.match(/^\s*local\.([A-Za-z0-9_]+)/);
+    const localMatch = line.match(/^\s*local\.([A-Za-z0-9_]+)/i);
 
     if (localMatch) {
       currentFunction.locals.push(localMatch[1]);
@@ -240,6 +240,15 @@ function createCompletionItems(symbols) {
 }
 
 function activate(context) {
+  const triggerCharacters = [
+    ...'abcdefghijklmnopqrstuvwxyz',
+    ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    ...'0123456789',
+    '_',
+    '[',
+    '.'
+  ];
+
   const provider = vscode.languages.registerCompletionItemProvider(
     { language: 'scp' },
     {
@@ -248,7 +257,7 @@ function activate(context) {
         return createCompletionItems(definitions);
       }
     },
-    '.'
+    ...triggerCharacters
   );
 
   context.subscriptions.push(provider);
