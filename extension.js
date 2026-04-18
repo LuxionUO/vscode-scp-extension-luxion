@@ -4,9 +4,11 @@ const fs = require('fs/promises');
 
 const SUPPORTED_SECTION_TYPES = new Map([
   ['function', 'FUNCTION'],
+  ['item', 'ITEM'],
   ['itemdef', 'ITEM'],
   ['areadef', 'AREADEF'],
   ['regiontype', 'REGIONTYPE'],
+  ['type', 'TYPEDEF'],
   ['typedef', 'TYPEDEF'],
   ['dialog', 'DIALOG']
 ]);
@@ -214,9 +216,10 @@ function getCompletionKind(type) {
 function createCompletionItems(symbols) {
   return symbols.map((symbol) => {
     const params = symbol.type === 'FUNCTION' ? symbol.locals.join(', ') : '';
+    const displayType = symbol.type === 'TYPEDEF' ? 'type' : symbol.type.toLowerCase();
     const label = symbol.type === 'FUNCTION'
-      ? `${symbol.type}: ${symbol.name} (${params || ''})`
-      : `${symbol.type}: ${symbol.name}`;
+      ? `[${displayType}] ${symbol.name} (${params || ''})`
+      : `[${displayType}] ${symbol.name}`;
     const shortName = symbol.name.split('.').pop() || symbol.name;
 
     const item = new vscode.CompletionItem(label, getCompletionKind(symbol.type));
