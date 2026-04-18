@@ -247,11 +247,11 @@ function createCompletionItems(symbols) {
     const item = new vscode.CompletionItem(label, getCompletionKind(symbol.type));
     item.insertText = symbol.name;
     item.filterText = [
-      symbol.type,
-      displayType,
       symbol.name,
       shortName,
-      symbol.name.replace(/_/g, ' ')
+      symbol.name.replace(/_/g, ' '),
+      displayType,
+      symbol.type
     ].join(' ');
     item.sortText = `0_${symbol.type}_${symbol.name}`;
     item.detail = `From ${symbol.file}`;
