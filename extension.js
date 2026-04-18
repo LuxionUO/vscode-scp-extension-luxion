@@ -1,5 +1,6 @@
 const vscode = require('vscode');
 const path = require('path');
+const fs = require('fs/promises');
 
 function parseFunctionDefinitions(content) {
   const lines = content.split(/\r?\n/);
@@ -48,19 +49,106 @@ function parseFunctionDefinitions(content) {
   return definitions;
 }
 
-async function collectFunctionsInWorkspace() {
-  const files = await vscode.workspace.findFiles('**/*.scp', '**/{.git,node_modules}/**');
+async function pathExists(filePath) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function findProjectRoot(startDir) {
+  let currentDir = startDir;
+  let detectedRoot = null;
+
+  while (true) {
+    const hasGit = await pathExists(path.join(currentDir, '.git'));
+    const hasPackageJson = await pathExists(path.join(currentDir, 'package.json'));
+
+    if (hasGit || hasPackageJson) {
+      detectedRoot = currentDir;
+    }
+
+    const parentDir = path.dirname(currentDir);
+    if (parentDir === currentDir) {
+      break;
+    }
+
+    currentDir = parentDir;
+  }
+
+  return detectedRoot || startDir;
+}
+
+async function collectScpFilesFromDirectory(rootDir) {
+  const files = [];
+  const ignoredDirectories = new Set(['.git', 'node_modules']);
+  const stack = [rootDir];
+
+  while (stack.length > 0) {
+    const currentDir = stack.pop();
+    let entries;
+
+    try {
+      entries = await fs.readdir(currentDir, { withFileTypes: true });
+    } catch {
+      continue;
+    }
+
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        if (!ignoredDirectories.has(entry.name)) {
+          stack.push(path.join(currentDir, entry.name));
+        }
+        continue;
+      }
+
+      if (entry.isFile() && entry.name.toLowerCase().endsWith('.scp')) {
+        files.push(path.join(currentDir, entry.name));
+      }
+    }
+  }
+
+  return files;
+}
+
+async function collectFunctions(document) {
+  const files = [];
+  const seenPaths = new Set();
+
+  if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
+    const workspaceUris = await vscode.workspace.findFiles('**/*.{scp,SCP}', '**/{.git,node_modules}/**');
+
+    for (const uri of workspaceUris) {
+      if (!seenPaths.has(uri.fsPath)) {
+        seenPaths.add(uri.fsPath);
+        files.push(uri.fsPath);
+      }
+    }
+  }
+
+  const projectRoot = await findProjectRoot(path.dirname(document.uri.fsPath));
+  const localFiles = await collectScpFilesFromDirectory(projectRoot);
+
+  for (const filePath of localFiles) {
+    if (!seenPaths.has(filePath)) {
+      seenPaths.add(filePath);
+      files.push(filePath);
+    }
+  }
+
   const functions = [];
 
   for (const file of files) {
     try {
-      const content = (await vscode.workspace.fs.readFile(file)).toString();
+      const content = (await fs.readFile(file)).toString();
       const definitions = parseFunctionDefinitions(content);
 
       for (const definition of definitions) {
         functions.push({
           ...definition,
-          file: path.basename(file.fsPath)
+          file: path.basename(file)
         });
       }
     } catch {
@@ -97,11 +185,7 @@ function activate(context) {
     { language: 'scp' },
     {
       async provideCompletionItems(document) {
-        if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
-          return [];
-        }
-
-        const functions = await collectFunctionsInWorkspace();
+        const functions = await collectFunctions(document);
         return createCompletionItems(functions);
       }
     },
