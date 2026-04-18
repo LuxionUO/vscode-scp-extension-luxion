@@ -1,0 +1,25 @@
+{
+  "SCP Function - f_setSkill": {
+    "prefix": [
+      "f_setSkill"
+    ],
+    "body": [
+      "[FUNCTION f_setSkill]",
+      "local.skill = <argv[0]>",
+      "local.value = <argv[1]>"
+    ],
+    "description": "Inserisce la funzione f_setSkill con argomenti skill/value"
+  },
+  "SCP Function - 2 argv template": {
+    "prefix": [
+      "scp-fn-2args",
+      "function-2args"
+    ],
+    "body": [
+      "[FUNCTION ${1:f_functionName}]",
+      "local.${2:skill} = <argv[0]>",
+      "local.${3:value} = <argv[1]>"
+    ],
+    "description": "Template funzione SCP con 2 argomenti argv"
+  }
+}

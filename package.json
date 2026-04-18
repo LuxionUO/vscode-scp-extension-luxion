@@ -35,6 +35,16 @@
         "scopeName": "source.scp",
         "path": "./syntaxes/scp.tmLanguage.json"
       }
+    ],
+    "snippets": [
+      {
+        "language": "scp",
+        "path": "./snippets/scp.code-snippets"
+      }
     ]
-  }
+  },
+  "main": "./extension.js",
+  "activationEvents": [
+    "onLanguage:scp"
+  ]
 }
