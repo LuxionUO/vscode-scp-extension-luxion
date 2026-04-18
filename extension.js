@@ -6,6 +6,7 @@ const SUPPORTED_SECTION_TYPES = new Map([
   ['function', 'FUNCTION'],
   ['item', 'ITEM'],
   ['itemdef', 'ITEM'],
+  ['defname', 'DEFNAME'],
   ['areadef', 'AREADEF'],
   ['regiontype', 'REGIONTYPE'],
   ['type', 'TYPEDEF'],
@@ -143,6 +144,23 @@ async function collectScpFilesFromDirectory(rootDir) {
 async function collectDefinitions(document) {
   const files = [];
   const seenPaths = new Set();
+  const inMemoryDocuments = new Map();
+
+  for (const openDocument of vscode.workspace.textDocuments) {
+    if (openDocument.languageId !== 'scp' || openDocument.isClosed) {
+      continue;
+    }
+
+    if (openDocument.uri.scheme !== 'file') {
+      continue;
+    }
+
+    inMemoryDocuments.set(openDocument.uri.fsPath, openDocument.getText());
+  }
+
+  if (document.uri.scheme === 'file') {
+    inMemoryDocuments.set(document.uri.fsPath, document.getText());
+  }
 
   if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
     const workspaceUris = await vscode.workspace.findFiles('**/*.{scp,SCP}', '**/{.git,node_modules}/**');
@@ -170,7 +188,9 @@ async function collectDefinitions(document) {
 
   for (const file of files) {
     try {
-      const content = (await fs.readFile(file)).toString();
+      const content = inMemoryDocuments.has(file)
+        ? inMemoryDocuments.get(file)
+        : (await fs.readFile(file)).toString();
       const definitions = parseScriptDefinitions(content);
 
       for (const definition of definitions) {
@@ -208,6 +228,8 @@ function getCompletionKind(type) {
       return vscode.CompletionItemKind.Class;
     case 'DIALOG':
       return vscode.CompletionItemKind.Interface;
+    case 'DEFNAME':
+      return vscode.CompletionItemKind.Constant;
     default:
       return vscode.CompletionItemKind.Text;
   }
@@ -224,7 +246,13 @@ function createCompletionItems(symbols) {
 
     const item = new vscode.CompletionItem(label, getCompletionKind(symbol.type));
     item.insertText = symbol.name;
-    item.filterText = `${symbol.type} ${symbol.name} ${shortName}`;
+    item.filterText = [
+      symbol.name,
+      shortName,
+      symbol.name.replace(/_/g, ' '),
+      displayType,
+      symbol.type
+    ].join(' ');
     item.sortText = `0_${symbol.type}_${symbol.name}`;
     item.detail = `From ${symbol.file}`;
     item.documentation = new vscode.MarkdownString(
@@ -239,6 +267,48 @@ function createCompletionItems(symbols) {
   });
 }
 
+function createSignatureHelp(functionSymbol, activeParameter) {
+  const locals = functionSymbol.locals || [];
+  const parameters = (locals.length > 0 ? locals : ['arg1']).map(
+    (local) => new vscode.ParameterInformation(local)
+  );
+  const signatureLabel = `${functionSymbol.name}(${parameters.map((parameter) => parameter.label).join(', ')})`;
+  const signature = new vscode.SignatureInformation(signatureLabel);
+
+  signature.parameters = parameters;
+
+  const help = new vscode.SignatureHelp();
+  help.signatures = [signature];
+  help.activeSignature = 0;
+  help.activeParameter = Math.min(activeParameter, Math.max(parameters.length - 1, 0));
+
+  return help;
+}
+
+function getFunctionSymbolAtCursor(functionSymbols, linePrefix) {
+  const invocationMatch = linePrefix.match(/([A-Za-z_][A-Za-z0-9_\.]*)\s+([^]*)$/);
+
+  if (!invocationMatch) {
+    return null;
+  }
+
+  const functionName = invocationMatch[1];
+  const argsText = invocationMatch[2] || '';
+  const activeParameter = argsText.trim() ? argsText.split(',').length - 1 : 0;
+  const matchedFunction = functionSymbols.find(
+    (symbol) => symbol.name.toLowerCase() === functionName.toLowerCase()
+  );
+
+  if (!matchedFunction) {
+    return null;
+  }
+
+  return {
+    functionSymbol: matchedFunction,
+    activeParameter
+  };
+}
+
 function activate(context) {
   const triggerCharacters = [
     ...'abcdefghijklmnopqrstuvwxyz',
@@ -246,10 +316,13 @@ function activate(context) {
     ...'0123456789',
     '_',
     '[',
-    '.'
+    '.',
+    ' ',
+    ',',
+    '='
   ];
 
-  const provider = vscode.languages.registerCompletionItemProvider(
+  const completionProvider = vscode.languages.registerCompletionItemProvider(
     { language: 'scp' },
     {
       async provideCompletionItems(document) {
@@ -260,7 +333,28 @@ function activate(context) {
     ...triggerCharacters
   );
 
-  context.subscriptions.push(provider);
+  const signatureProvider = vscode.languages.registerSignatureHelpProvider(
+    { language: 'scp' },
+    {
+      async provideSignatureHelp(document, position) {
+        const definitions = await collectDefinitions(document);
+        const functionSymbols = definitions.filter((symbol) => symbol.type === 'FUNCTION');
+        const linePrefix = document.lineAt(position.line).text.slice(0, position.character);
+        const match = getFunctionSymbolAtCursor(functionSymbols, linePrefix);
+
+        if (!match) {
+          return null;
+        }
+
+        return createSignatureHelp(match.functionSymbol, match.activeParameter);
+      }
+    },
+    ' ',
+    ',',
+    '='
+  );
+
+  context.subscriptions.push(completionProvider, signatureProvider);
 }
 
 function deactivate() {}
