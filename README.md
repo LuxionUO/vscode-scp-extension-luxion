@@ -5,7 +5,7 @@
 
 ## New: FUNCTION signature autocomplete
 
-When you're editing an `.scp` file, the extension now scans all `.scp` files in the same workspace folder and detects blocks like:
+When you're editing an `.scp` file, the extension now scans all `.scp` files in the **same directory** as the current file and detects blocks like:
 
 ```scp
 [FUNCTION getAurea]
@@ -19,3 +19,5 @@ Then it suggests:
 - `getAurea (player, skill, timer)`
 
 The inserted text is only the function name (`getAurea`), while the suggestion label helps you remember the expected locals.
+
+Completions are also triggered while typing object-style names like `src.setbuff`.

@@ -76,10 +76,11 @@ function createCompletionItems(functions) {
   return functions.map((fn) => {
     const params = fn.locals.join(', ');
     const signature = params ? `${fn.name} (${params})` : `${fn.name} ()`;
+    const shortName = fn.name.split('.').pop() || fn.name;
 
     const item = new vscode.CompletionItem(signature, vscode.CompletionItemKind.Function);
     item.insertText = fn.name;
-    item.filterText = fn.name;
+    item.filterText = `${fn.name} ${shortName}`;
     item.sortText = `0_${fn.name}`;
     item.detail = `From ${fn.file}`;
     item.documentation = new vscode.MarkdownString(
@@ -97,16 +98,16 @@ function activate(context) {
     { language: 'scp' },
     {
       async provideCompletionItems(document) {
-        const folder = vscode.workspace.getWorkspaceFolder(document.uri);
-
-        if (!folder) {
+        const currentDirectory = path.dirname(document.uri.fsPath);
+        if (!currentDirectory) {
           return [];
         }
 
-        const functions = await collectFunctionsInFolder(folder.uri);
+        const functions = await collectFunctionsInFolder(vscode.Uri.file(currentDirectory));
         return createCompletionItems(functions);
       }
-    }
+    },
+    '.'
   );
 
   context.subscriptions.push(provider);
