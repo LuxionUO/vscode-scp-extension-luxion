@@ -63,7 +63,7 @@ function parseScriptDefinitions(content) {
       continue;
     }
 
-    const localMatch = line.match(/^\s*local\.([A-Za-z0-9_]+)/i);
+    const localMatch = line.match(/^\s*local\.([A-Za-z0-9_]+).*<argv\[/i);
 
     if (localMatch) {
       currentFunction.locals.push(localMatch[1]);
@@ -274,12 +274,25 @@ function shouldSuppressCompletionAtPosition(document, position) {
   const linePrefix = document.lineAt(position.line).text.slice(0, position.character);
   const tokenMatch = linePrefix.match(/([A-Za-z_][A-Za-z0-9_]*)$/);
 
-  if (!tokenMatch) {
+  return !tokenMatch;
+}
+
+function getTypedTokenAtPosition(document, position) {
+  const linePrefix = document.lineAt(position.line).text.slice(0, position.character);
+  const tokenMatch = linePrefix.match(/([A-Za-z_][A-Za-z0-9_]*)$/);
+
+  return tokenMatch ? tokenMatch[1].toLowerCase() : '';
+}
+
+function matchesTypedToken(symbol, typedToken) {
+  if (!typedToken) {
     return true;
   }
 
-  const typedToken = tokenMatch[1].toLowerCase();
-  return !typedToken.startsWith('i_');
+  const fullName = symbol.name.toLowerCase();
+  const shortName = (symbol.name.split('.').pop() || symbol.name).toLowerCase();
+
+  return fullName.startsWith(typedToken) || shortName.startsWith(typedToken);
 }
 
 function createSignatureHelp(functionSymbol, activeParameter) {
@@ -346,7 +359,12 @@ function activate(context) {
         }
 
         const definitions = await collectDefinitions(document);
-        return createCompletionItems(definitions);
+        const typedToken = getTypedTokenAtPosition(document, position);
+        const matchingDefinitions = definitions.filter((definition) =>
+          matchesTypedToken(definition, typedToken)
+        );
+
+        return createCompletionItems(matchingDefinitions);
       }
     },
     ...triggerCharacters
